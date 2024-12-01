@@ -14,5 +14,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("partOne res: %s", day1.PartOne(string(content)))
+	fmt.Printf("partOne res: %s \n", day1.PartOne(string(content)))
+	fmt.Printf("partTwo res: %s \n", day1.PartTwo(string(content)))
 }
