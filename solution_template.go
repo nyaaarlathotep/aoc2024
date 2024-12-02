@@ -1,13 +1,11 @@
-package day2
-
-import (
-)
+package main
 
 func PartOne(input string) string {
+	return ""
 
 }
 
 func PartTwo(input string) string {
+	return ""
 
 }
-
