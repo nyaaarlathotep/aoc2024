@@ -124,6 +124,30 @@ func allDirBytes(m [][]byte, targetLen int, i, j int) [][]byte {
 }
 
 func PartTwo(input string) string {
-	return ""
+	lines := strings.Split(input, "\n")
+	byteMap := make([][]byte, len(lines))
+	for i, l := range lines {
+		byteMap[i] = make([]byte, len(l))
+		for j, b := range []byte(l) {
+			byteMap[i][j] = b
+		}
+	}
+	total := 0
+	for i := 1; i < len(byteMap)-1; i++ {
+		for j := 1; j < len(byteMap[0])-1; j++ {
+			if byteMap[i][j] == 'A' {
+				word1 := [2]byte{byteMap[i-1][j-1], byteMap[i+1][j+1]}
+				word2 := [2]byte{byteMap[i-1][j+1], byteMap[i+1][j-1]}
+				if digPass(word1) && digPass(word2) {
+					total++
+				}
 
+			}
+		}
+	}
+	return strconv.Itoa(total)
+}
+
+func digPass(bytes [2]byte) bool {
+	return (bytes[0] == 'M' && bytes[1] == 'S') || (bytes[1] == 'M' && bytes[0] == 'S')
 }
