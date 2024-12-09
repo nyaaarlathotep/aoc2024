@@ -1,6 +1,7 @@
 package day9
 
 import (
+	"fmt"
 	"slices"
 	"strconv"
 )
@@ -68,68 +69,90 @@ func PartOne(input string) string {
 	return strconv.Itoa(total)
 }
 
-//func PartOne(input string) string {
-//
-//	res := make([]space, 0)
-//
-//	spaceType := true
-//	fileId := 0
-//	for i, c := range input {
-//		if spaceType {
-//			res[i] = space{
-//				id:        fileId,
-//				length:    int(c - '0'),
-//				spaceType: file,
-//			}
-//			fileId++
-//			spaceType = false
-//		} else {
-//			res[i] = space{
-//				length:    int(c - '0'),
-//				spaceType: empty,
-//			}
-//			spaceType = true
-//		}
-//	}
-//
-//	low, high := 0, len(res)-1
-//	for low < high {
-//		for res[low].spaceType != empty {
-//			low++
-//			if low >= high {
-//				break
-//			}
-//		}
-//		for res[high].spaceType != file {
-//			high--
-//			if low >= high {
-//				break
-//			}
-//		}
-//		if res[low].length == res[high].length {
-//			res[low], res[high] = res[high], res[low]
-//		} else if res[low].length < res[high].length {
-//			if res[low].children != nil {
-//
-//			} else {
-//				res[low].id = res[high].id
-//				res[low].spaceType = res[high].spaceType
-//				res[high].length = res[high].length - res[low].length
-//			}
-//		} else {
-//			res[low].children = []space{res[high]}
-//			res[low].length = res[low].length - res[high].length
-//		}
-//	}
-//
-//	for _, v := range res {
-//
-//	}
-
-//return ""
-//
-//}
-
 func PartTwo(input string) string {
-	return ""
+	res := make([]space, len(input))
+	spaceType := true
+	fileId := 0
+	for i, c := range input {
+		if spaceType {
+			res[i] = space{
+				id:        fileId,
+				length:    int(c - '0'),
+				spaceType: file,
+			}
+			fileId++
+			spaceType = false
+		} else {
+			res[i] = space{
+				id:        -1,
+				length:    int(c - '0'),
+				spaceType: empty,
+			}
+			spaceType = true
+		}
+	}
+
+	for i := len(res) - 1; i >= 0; i-- {
+		if res[i].spaceType == file {
+			for j := 0; j < i; j++ {
+				if res[j].spaceType == empty && res[j].length >= res[i].length {
+					res[i].spaceType = empty
+					newFile := space{
+						id:        res[i].id,
+						length:    res[i].length,
+						spaceType: file,
+						children:  nil,
+					}
+					res[i].id = -1
+					if res[j].length == res[i].length {
+						res[j] = newFile
+						//printRes(&res)
+						break
+					}
+					res[j].length = res[j].length - res[i].length
+					res = append(res[:j+1], res[j:]...)
+					res[j] = newFile
+					//printRes(&res)
+					break
+				}
+			}
+		}
+
+	}
+
+	total := 0
+	index := 0
+	for _, v := range res {
+		for range v.length {
+			if v.spaceType == file {
+				total = total + index*v.id
+			}
+			index++
+		}
+	}
+	return strconv.Itoa(total)
+}
+
+func printRes(resa *[]space) {
+	res := *resa
+	for _, v := range res {
+		for range v.length {
+			fmt.Printf("%d ", v.id)
+		}
+	}
+	fmt.Println()
+}
+
+func write(s *[]int, i int, length int, fileId int) {
+	for j := i; j < i+length; j++ {
+		(*s)[j] = fileId
+	}
+}
+func findSpace(s *[]int, i int, length int) bool {
+	for j := i; j < i+length; j++ {
+		if (*s)[j] != -1 {
+			return false
+		}
+	}
+	return true
 }
