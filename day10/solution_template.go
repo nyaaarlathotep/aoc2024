@@ -102,6 +102,42 @@ func neighborsF(now pos, mP *[][]rune, f func(i, j int) bool) []pos {
 }
 
 func PartTwo(input string) string {
-	return ""
+	trailHeads := make([]pos, 0)
+	lines := strings.Split(input, "\n")
+	m := make([][]rune, len(lines))
+	for i, l := range lines {
+		line := make([]rune, len(l))
+		for j, b := range l {
+			line[j] = b
+			if b == '0' {
+				trailHeads = append(trailHeads, pos{
+					i: i,
+					j: j,
+				})
+			}
+		}
+		m[i] = line
+	}
 
+	total := 0
+	for _, h := range trailHeads {
+		tops := ToTops2(h, &m)
+		total = total + len(tops)
+
+	}
+	return strconv.Itoa(total)
+}
+func ToTops2(now pos, mP *[][]rune) []pos {
+	m := *mP
+	if m[now.i][now.j] == '9' {
+		return []pos{now}
+	}
+	neighbors := neighborsF(now, mP, func(a, b int) bool {
+		return m[a][b] == m[now.i][now.j]+1
+	})
+	res := make([]pos, 0)
+	for _, neighbor := range neighbors {
+		res = append(res, ToTops2(neighbor, mP)...)
+	}
+	return res
 }
