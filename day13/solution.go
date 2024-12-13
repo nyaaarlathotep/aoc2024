@@ -107,6 +107,52 @@ func PartOne(input string) string {
 }
 
 func PartTwo(input string) string {
-	return ""
+	parts := strings.Split(input, "\n\n")
+	re1 := regexp.MustCompile(`X\+(\d+), Y\+(\d+)`)
+	re2 := regexp.MustCompile(`X=(\d+), Y=(\d+)`)
+	totalMin := 0
+	for _, p := range parts {
+		var ax, ay, bx, by, rx, ry int
+		lines := strings.Split(p, "\n")
+		matches := re1.FindAllStringSubmatch(lines[0], -1)
+		for _, match := range matches {
+			ax, _ = strconv.Atoi(match[1])
+			ay, _ = strconv.Atoi(match[2])
+		}
+		matches = re1.FindAllStringSubmatch(lines[1], -1)
+		for _, match := range matches {
+			bx, _ = strconv.Atoi(match[1])
+			by, _ = strconv.Atoi(match[2])
+		}
+		matches = re2.FindAllStringSubmatch(lines[2], -1)
+		for _, match := range matches {
+			rx, _ = strconv.Atoi(match[1])
+			ry, _ = strconv.Atoi(match[2])
+		}
+		rx += 10000000000000
+		ry += 10000000000000
+		nbX := bx * ay
+		nbY := by * ax
+		npX := rx * ay
+		npY := ry * ax
 
+		B := abs(nbX - nbY)
+		P := abs(npX - npY)
+
+		if P%B == 0 {
+			b := P / B
+			if (rx-(b*bx))%ax == 0 {
+				a := (rx - (b * bx)) / ax
+				totalMin += (a * 3) + b
+			}
+		}
+	}
+	return strconv.Itoa(totalMin)
+}
+
+var abs = func(i int) int {
+	if i < 0 {
+		i = -i
+	}
+	return i
 }
