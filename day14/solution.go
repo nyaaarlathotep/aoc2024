@@ -12,7 +12,7 @@ type robot struct {
 	vx, vy int
 }
 
-// PartOne 101 tiles wide and 103 tiles tall,148051800 wrong
+// PartOne 101 tiles wide and 103 tiles tall,148051800 wrong, 222208000
 func PartOne(input string) string {
 	re := regexp.MustCompile(`-?\d+`)
 	lines := strings.Split(input, "\n")
@@ -32,28 +32,23 @@ func PartOne(input string) string {
 		robots = append(robots, r)
 	}
 
-	xSize, ySize := 101, 103
+	xSize, ySize, seconds := 101, 103, 100
 	allPos := make([]runeMap.Pos, 0, len(robots))
 	for _, r := range robots {
 		destX, destY := 0, 0
-		rowStep := (100 * r.vx % xSize) + r.x
-		if rowStep >= xSize {
-			destX = rowStep - xSize
-		} else if rowStep < 0 {
-			rowStep = rowStep + xSize
+		rowStep := (seconds*r.vx + r.x) % xSize
+		if rowStep < 0 {
+			destX = rowStep + xSize
 		} else {
 			destX = rowStep
 		}
 
-		colStep := (100 * r.vy % ySize) + r.y
-		if colStep >= ySize {
-			destY = colStep - ySize
-		} else if colStep < 0 {
+		colStep := (seconds*r.vy + r.y) % ySize
+		if colStep < 0 {
 			destY = colStep + ySize
 		} else {
 			destY = colStep
 		}
-
 		allPos = append(allPos, runeMap.Pos{
 			I: destX,
 			J: destY,
@@ -77,21 +72,6 @@ func PartOne(input string) string {
 			four++
 		}
 	}
-	//for j := 0; j < ySize; j++ {
-	//	for i := 0; i < xSize; i++ {
-	//		v := m[runeMap.Pos{
-	//			I: i,
-	//			J: j,
-	//		}]
-	//		if v == 0 {
-	//			fmt.Printf(" . ")
-	//		} else {
-	//
-	//			fmt.Printf(" %v ", v)
-	//		}
-	//	}
-	//	fmt.Println()
-	//}
 	total := one * two * three * four
 
 	return strconv.Itoa(total)
