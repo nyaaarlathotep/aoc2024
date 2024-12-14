@@ -2,6 +2,7 @@ package day14
 
 import (
 	"aoc2024/runeMap"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -78,6 +79,73 @@ func PartOne(input string) string {
 }
 
 func PartTwo(input string) string {
-	return ""
+	re := regexp.MustCompile(`-?\d+`)
+	lines := strings.Split(input, "\n")
+	robots := make([]robot, 0, len(lines))
+	for _, l := range lines {
+		matches := re.FindAllString(l, -1)
+		x, _ := strconv.Atoi(matches[0])
+		y, _ := strconv.Atoi(matches[1])
+		vx, _ := strconv.Atoi(matches[2])
+		vy, _ := strconv.Atoi(matches[3])
+		r := robot{
+			x:  x,
+			y:  y,
+			vx: vx,
+			vy: vy,
+		}
+		robots = append(robots, r)
+	}
 
+	xSize, ySize := 101, 103
+	for seconds := 0; ; seconds++ {
+		m := make(map[runeMap.Pos]int)
+		printIt := true
+		for _, r := range robots {
+			destX, destY := 0, 0
+			rowStep := (seconds*r.vx + r.x) % xSize
+			if rowStep < 0 {
+				destX = rowStep + xSize
+			} else {
+				destX = rowStep
+			}
+
+			colStep := (seconds*r.vy + r.y) % ySize
+			if colStep < 0 {
+				destY = colStep + ySize
+			} else {
+				destY = colStep
+			}
+			pos := runeMap.Pos{
+				I: destX,
+				J: destY,
+			}
+			m[pos] = m[pos] + 1
+			if m[pos] >= 2 {
+				printIt = false
+			}
+		}
+		if printIt {
+			for j := 0; j < ySize; j++ {
+				for i := 0; i < xSize; i++ {
+					v := m[runeMap.Pos{
+						I: i,
+						J: j,
+					}]
+					if v == 0 {
+						fmt.Printf(".")
+					} else {
+
+						fmt.Printf("%v", v)
+					}
+				}
+				fmt.Println()
+			}
+			fmt.Println()
+			fmt.Println()
+		}
+
+	}
+
+	return ""
 }
