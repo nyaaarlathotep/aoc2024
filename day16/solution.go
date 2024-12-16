@@ -70,103 +70,102 @@ func PartOne(input string) string {
 func findWay(rockMap *map[runeMap.Pos]bool, minScoreMap *map[posAndDir]int, start posAndDir, end runeMap.Pos) {
 	nowPoses := []posAndDir{start}
 	for len(nowPoses) != 0 {
-		nextPoses := make([]posAndDir, 0)
-		for _, p := range nowPoses {
-			if p.p == end {
-				continue
-			}
-			neighbors := neighborsF(p, func(neighborI, neighborJ int) bool {
-				return !(*rockMap)[runeMap.Pos{
-					I: neighborI,
-					J: neighborJ,
-				}]
-			})
-			for _, neighbor := range neighbors {
-				k := neighbor
-				k.score = 0
-				if v, ok := (*minScoreMap)[k]; ok {
-					if neighbor.score < v {
-						(*minScoreMap)[neighbor] = neighbor.score
-						nextPoses = append(nextPoses, neighbor)
-					}
-				} else {
+		p := nowPoses[0]
+		nowPoses = nowPoses[1:]
+		if p.p == end {
+			continue
+		}
+		neighbors := transF(p, func(neighborI, neighborJ int) bool {
+			return !(*rockMap)[runeMap.Pos{
+				I: neighborI,
+				J: neighborJ,
+			}]
+		})
+		for _, neighbor := range neighbors {
+			k := neighbor
+			k.score = 0
+			if v, ok := (*minScoreMap)[k]; ok {
+				if neighbor.score < v {
 					(*minScoreMap)[k] = neighbor.score
-					nextPoses = append(nextPoses, neighbor)
+					nowPoses = append(nowPoses, neighbor)
 				}
+			} else {
+				(*minScoreMap)[k] = neighbor.score
+				nowPoses = append(nowPoses, neighbor)
 			}
 		}
-		nowPoses = nextPoses
 	}
 }
-func neighborsF(now posAndDir, f func(neighborI, neighborJ int) bool) []posAndDir {
+func transF(now posAndDir, f func(neighborI, neighborJ int) bool) []posAndDir {
 	i := now.p.I
 	j := now.p.J
 	mapHeight := m
 	mapLength := n
 	res := make([]posAndDir, 0)
-	if Legal(mapHeight, mapLength, i+1, j) && f(i+1, j) {
-		nextScore := now.score
-		if now.dir == DOWN {
-			nextScore = nextScore + 1
-		} else if now.dir == UP {
-			nextScore = nextScore + 2000 + 1
-		} else {
-			nextScore = nextScore + 1000 + 1
+	if now.dir == UP {
+		l, r := now, now
+		l.dir = LEFT
+		l.score = l.score + 1000
+		r.dir = RIGHT
+		r.score = r.score + 1000
+		res = append(res, l)
+		res = append(res, r)
+		if legal(mapHeight, mapLength, i-1, j) && f(i-1, j) {
+			res = append(res, posAndDir{
+				p:     runeMap.Pos{I: i - 1, J: j},
+				dir:   UP,
+				score: now.score + 1,
+			})
 		}
-		res = append(res, posAndDir{
-			p:     runeMap.Pos{I: i + 1, J: j},
-			dir:   DOWN,
-			score: nextScore,
-		})
-	}
-	if Legal(mapHeight, mapLength, i-1, j) && f(i-1, j) {
-		nextScore := now.score
-		if now.dir == UP {
-			nextScore = nextScore + 1
-		} else if now.dir == DOWN {
-			nextScore = nextScore + 2000 + 1
-		} else {
-			nextScore = nextScore + 1000 + 1
+	} else if now.dir == RIGHT {
+		l, r := now, now
+		l.dir = UP
+		l.score = l.score + 1000
+		r.dir = DOWN
+		r.score = r.score + 1000
+		res = append(res, l)
+		res = append(res, r)
+		if legal(mapHeight, mapLength, i, j+1) && f(i, j+1) {
+			res = append(res, posAndDir{
+				p:     runeMap.Pos{I: i, J: j + 1},
+				dir:   RIGHT,
+				score: now.score + 1,
+			})
 		}
-		res = append(res, posAndDir{
-			p:     runeMap.Pos{I: i - 1, J: j},
-			dir:   UP,
-			score: nextScore,
-		})
-	}
-	if Legal(mapHeight, mapLength, i, j+1) && f(i, j+1) {
-		nextScore := now.score
-		if now.dir == RIGHT {
-			nextScore = nextScore + 1
-		} else if now.dir == LEFT {
-			nextScore = nextScore + 2000 + 1
-		} else {
-			nextScore = nextScore + 1000 + 1
+	} else if now.dir == DOWN {
+		l, r := now, now
+		l.dir = LEFT
+		l.score = l.score + 1000
+		r.dir = RIGHT
+		r.score = r.score + 1000
+		res = append(res, l)
+		res = append(res, r)
+		if legal(mapHeight, mapLength, i+1, j) && f(i+1, j) {
+			res = append(res, posAndDir{
+				p:     runeMap.Pos{I: i + 1, J: j},
+				dir:   DOWN,
+				score: now.score + 1,
+			})
 		}
-		res = append(res, posAndDir{
-			p:     runeMap.Pos{I: i, J: j + 1},
-			dir:   RIGHT,
-			score: nextScore,
-		})
-	}
-	if Legal(mapHeight, mapLength, i, j-1) && f(i, j-1) {
-		nextScore := now.score
-		if now.dir == LEFT {
-			nextScore = nextScore + 1
-		} else if now.dir == RIGHT {
-			nextScore = nextScore + 2000 + 1
-		} else {
-			nextScore = nextScore + 1000 + 1
+	} else if now.dir == LEFT {
+		l, r := now, now
+		l.dir = UP
+		l.score = l.score + 1000
+		r.dir = DOWN
+		r.score = r.score + 1000
+		res = append(res, l)
+		res = append(res, r)
+		if legal(mapHeight, mapLength, i, j-1) && f(i, j-1) {
+			res = append(res, posAndDir{
+				p:     runeMap.Pos{I: i, J: j - 1},
+				dir:   LEFT,
+				score: now.score + 1,
+			})
 		}
-		res = append(res, posAndDir{
-			p:     runeMap.Pos{I: i, J: j - 1},
-			dir:   LEFT,
-			score: nextScore,
-		})
 	}
 	return res
 }
-func Legal(m, n, i, j int) bool {
+func legal(m, n, i, j int) bool {
 	if i < 0 || i >= m {
 		return false
 	}
