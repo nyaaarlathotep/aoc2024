@@ -13,6 +13,11 @@ type posAndDir struct {
 	score int
 }
 
+type path struct {
+	nowPos posAndDir
+	path   []runeMap.Pos
+}
+
 type dirInt int
 
 const RIGHT = 1
@@ -85,7 +90,7 @@ func findWay(rockMap *map[runeMap.Pos]bool, minScoreMap *map[posAndDir]int, star
 			k := neighbor
 			k.score = 0
 			if v, ok := (*minScoreMap)[k]; ok {
-				if neighbor.score < v {
+				if neighbor.score <= v {
 					(*minScoreMap)[k] = neighbor.score
 					nowPoses = append(nowPoses, neighbor)
 				}
@@ -175,6 +180,87 @@ func legal(m, n, i, j int) bool {
 	return true
 }
 func PartTwo(input string) string {
-	return ""
+	rockMap := make(map[runeMap.Pos]bool)
+	s, e := runeMap.Pos{}, runeMap.Pos{}
+	lines := strings.Split(input, "\n")
+	m = len(lines)
+	n = len(lines[0])
+	for i, l := range lines {
+		for j, b := range l {
+			pos := runeMap.Pos{
+				I: i,
+				J: j,
+			}
+			if b == 'S' {
+				s = pos
+				continue
+			} else if b == 'E' {
+				e = pos
+				continue
+			} else if b == '#' {
+				rockMap[pos] = true
+			}
+		}
+	}
+	dirs := make(map[posAndDir]int)
+	successMap := make(map[int]map[runeMap.Pos]bool)
+	findWay2(&rockMap, &dirs, posAndDir{p: s, dir: RIGHT, score: 0}, e, &successMap)
+	minSteps := math.MaxInt
+	minTilts := math.MaxInt
+	for k, v := range successMap {
+		if k < minSteps {
+			minSteps = k
+			minTilts = len(v)
+		}
+	}
 
+	return strconv.Itoa(minTilts)
+}
+func findWay2(rockMap *map[runeMap.Pos]bool, minScoreMap *map[posAndDir]int, start posAndDir, end runeMap.Pos, successMap *map[int]map[runeMap.Pos]bool) {
+	nowPoses := []path{{
+		nowPos: start,
+		path:   []runeMap.Pos{},
+	}}
+	for len(nowPoses) != 0 {
+		nowWithPath := nowPoses[0]
+		now := nowWithPath.nowPos
+		myPath := make([]runeMap.Pos, len(nowWithPath.path))
+		copy(myPath, nowWithPath.path)
+		myPath = append(myPath, now.p)
+		nowPoses = nowPoses[1:]
+		if now.p == end {
+			if (*successMap)[now.score] == nil {
+				(*successMap)[now.score] = make(map[runeMap.Pos]bool)
+			}
+			for _, pos := range myPath {
+				(*successMap)[now.score][pos] = true
+			}
+			continue
+		}
+		neighbors := transF(now, func(neighborI, neighborJ int) bool {
+			return !(*rockMap)[runeMap.Pos{
+				I: neighborI,
+				J: neighborJ,
+			}]
+		})
+		for _, neighbor := range neighbors {
+			k := neighbor
+			k.score = 0
+			if v, ok := (*minScoreMap)[k]; ok {
+				if neighbor.score <= v {
+					(*minScoreMap)[k] = neighbor.score
+					nowPoses = append(nowPoses, path{
+						nowPos: neighbor,
+						path:   myPath,
+					})
+				}
+			} else {
+				(*minScoreMap)[k] = neighbor.score
+				nowPoses = append(nowPoses, path{
+					nowPos: neighbor,
+					path:   myPath,
+				})
+			}
+		}
+	}
 }
