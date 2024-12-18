@@ -31,6 +31,12 @@ func PartOne(input string) string {
 		J: maxJ - 1,
 	}
 
+	steps := getMinSteps(now, corrupted, end)
+	return strconv.Itoa(steps)
+
+}
+
+func getMinSteps(now runeMap.Pos, corrupted map[runeMap.Pos]bool, end runeMap.Pos) int {
 	minStep := make(map[runeMap.Pos]int)
 	outerRange := []runeMap.Pos{now}
 	steps := 1
@@ -48,7 +54,7 @@ func PartOne(input string) string {
 				minStep[n] = steps
 				if n == end {
 					//printMap(maxI, maxJ, minStep, corrupted)
-					return strconv.Itoa(steps)
+					return steps
 				}
 			}
 		}
@@ -57,9 +63,8 @@ func PartOne(input string) string {
 		outerRange = newOuterRange
 		steps++
 	}
-
-	return ""
-
+	printMap(maxI, maxJ, minStep, corrupted)
+	return -1
 }
 
 func printMap(maxI int, maxJ int, minStep map[runeMap.Pos]int, corrupted map[runeMap.Pos]bool) {
@@ -83,7 +88,31 @@ func printMap(maxI int, maxJ int, minStep map[runeMap.Pos]int, corrupted map[run
 	fmt.Println()
 }
 
+// 44,64
 func PartTwo(input string) string {
+	corrupted := make(map[runeMap.Pos]bool)
+	lines := strings.Split(input, "\n")
+	now := runeMap.Pos{
+		I: 0,
+		J: 0,
+	}
+	end := runeMap.Pos{
+		I: maxI - 1,
+		J: maxJ - 1,
+	}
+	for i := 0; i < len(lines); i++ {
+		cord := lines[i]
+		parts := strings.Split(cord, ",")
+		l, _ := strconv.Atoi(parts[0])
+		r, _ := strconv.Atoi(parts[1])
+		corrupted[runeMap.Pos{I: l, J: r}] = true
+		if i <= bytesNum {
+			continue
+		}
+		steps := getMinSteps(now, corrupted, end)
+		if steps == -1 {
+			return cord
+		}
+	}
 	return ""
-
 }
