@@ -14,6 +14,38 @@ func Legal(m, n, i, j int) bool {
 	return true
 }
 
+func NeighborsWithMNF(now Pos, maxI, maxJ int, f func(neighborI, neighborJ int) bool) []Pos {
+	i := now.I
+	j := now.J
+	mapHeight := maxI
+	mapLength := maxJ
+	res := make([]Pos, 0)
+	if Legal(mapHeight, mapLength, i+1, j) && f(i+1, j) {
+		res = append(res, Pos{
+			I: i + 1,
+			J: j,
+		})
+	}
+	if Legal(mapHeight, mapLength, i-1, j) && f(i-1, j) {
+		res = append(res, Pos{
+			I: i - 1,
+			J: j,
+		})
+	}
+	if Legal(mapHeight, mapLength, i, j+1) && f(i, j+1) {
+		res = append(res, Pos{
+			I: i,
+			J: j + 1,
+		})
+	}
+	if Legal(mapHeight, mapLength, i, j-1) && f(i, j-1) {
+		res = append(res, Pos{
+			I: i,
+			J: j - 1,
+		})
+	}
+	return res
+}
 func NeighborsF(now Pos, mP *[][]rune, f func(neighborI, neighborJ int) bool) []Pos {
 	i := now.I
 	j := now.J
