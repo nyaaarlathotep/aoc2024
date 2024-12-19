@@ -63,7 +63,7 @@ func getMinSteps(now runeMap.Pos, corrupted map[runeMap.Pos]bool, end runeMap.Po
 		outerRange = newOuterRange
 		steps++
 	}
-	printMap(maxI, maxJ, minStep, corrupted)
+	//printMap(maxI, maxJ, minStep, corrupted)
 	return -1
 }
 
