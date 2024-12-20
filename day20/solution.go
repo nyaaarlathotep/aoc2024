@@ -3,6 +3,7 @@ package day20
 import (
 	"aoc2024/runeMap"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -24,7 +25,7 @@ func PartOne(input string) string {
 	}
 
 	cheatMap := make(map[int][]runeMap.Pos)
-	length := oneBugChance(stones, m, n, []runeMap.Pos{s}, e, cheatMap)
+	length := oneBugChance(stones, m, n, []runeMap.Pos{s}, s, e, cheatMap)
 
 	total := 0
 	for k, v := range cheatMap {
@@ -34,15 +35,17 @@ func PartOne(input string) string {
 		if length-k >= 100 {
 			total += len(v)
 		}
-		fmt.Printf("%v: %v\n", len(v), length-k)
+		//fmt.Printf("%v: %v\n", len(v), length-k)
 	}
-	fmt.Printf("%v\n", length)
-	return ""
+	//fmt.Printf("%v\n", length)
+	//fmt.Println(cheatMap[length-2])
+	return strconv.Itoa(total)
 }
 
 func oneBugChance(stoneMap map[runeMap.Pos]bool, m, n int,
-	nowPoses []runeMap.Pos, e runeMap.Pos, cheatMap map[int][]runeMap.Pos) int {
+	nowPoses []runeMap.Pos, s, e runeMap.Pos, cheatMap map[int][]runeMap.Pos) int {
 	stepsMap := make(map[runeMap.Pos]int)
+	stepsMap[nowPoses[0]] = 0
 	stepsNow := 1
 	for len(nowPoses) != 0 {
 		nextPoses := make([]runeMap.Pos, 0)
@@ -65,16 +68,17 @@ func oneBugChance(stoneMap map[runeMap.Pos]bool, m, n int,
 			bugNeighbors := runeMap.NeighborsWithMNF(p, m, n, func(neighborI, neighborJ int) bool {
 				pos := runeMap.Pos{I: neighborI, J: neighborJ}
 				_, exist := stoneMap[pos]
-				return exist
+				_, stepped := stepsMap[pos]
+				return exist && !stepped
 			})
-			for _, neighbor := range bugNeighbors {
+			for _, bugPos := range bugNeighbors {
 				newStepsMap := make(map[runeMap.Pos]int, len(stepsMap)+1)
 				for k, v := range stepsMap {
 					newStepsMap[k] = v
 				}
-				newStepsMap[neighbor] = stepsNow
-				cheatMinRes := walk(newStepsMap, stoneMap, m, n, []runeMap.Pos{neighbor}, e, stepsNow+1)
-				cheatMap[cheatMinRes] = append(cheatMap[cheatMinRes], neighbor)
+				newStepsMap[bugPos] = stepsNow
+				cheatMinRes := walk(newStepsMap, stoneMap, m, n, []runeMap.Pos{bugPos}, s, e, stepsNow+1)
+				cheatMap[cheatMinRes] = append(cheatMap[cheatMinRes], bugPos)
 			}
 
 		}
@@ -83,7 +87,7 @@ func oneBugChance(stoneMap map[runeMap.Pos]bool, m, n int,
 	}
 	return -1
 }
-func walk(stepsMap map[runeMap.Pos]int, stoneMap map[runeMap.Pos]bool, m, n int, nowPoses []runeMap.Pos, e runeMap.Pos, stepsNow int) int {
+func walk(stepsMap map[runeMap.Pos]int, stoneMap map[runeMap.Pos]bool, m, n int, nowPoses []runeMap.Pos, s, e runeMap.Pos, stepsNow int) int {
 	for len(nowPoses) != 0 {
 		nextPoses := make([]runeMap.Pos, 0)
 		for _, p := range nowPoses {
@@ -100,6 +104,9 @@ func walk(stepsMap map[runeMap.Pos]int, stoneMap map[runeMap.Pos]bool, m, n int,
 				nextPoses = append(nextPoses, neighbor)
 				stepsMap[neighbor] = stepsNow
 				if neighbor == e {
+					//if stepsNow == 82 {
+					//	printMap(m, n, stepsMap, stoneMap, s, e)
+					//}
 					return stepsNow
 				}
 			}
@@ -109,6 +116,33 @@ func walk(stepsMap map[runeMap.Pos]int, stoneMap map[runeMap.Pos]bool, m, n int,
 	}
 	return -1
 }
+
+func printMap(maxI int, maxJ int, minStep map[runeMap.Pos]int, corrupted map[runeMap.Pos]bool, s, e runeMap.Pos) {
+	for j := 0; j < maxJ; j++ {
+		for i := 0; i < maxI; i++ {
+			pos := runeMap.Pos{
+				I: j,
+				J: i,
+			}
+			if pos == s {
+				fmt.Printf("S")
+			} else if pos == e {
+				fmt.Printf("E")
+			} else if _, ok := minStep[pos]; ok {
+				fmt.Printf("O")
+			} else if _, ok := corrupted[pos]; ok {
+
+				fmt.Printf("#")
+			} else {
+				fmt.Printf(".")
+			}
+		}
+		fmt.Println()
+	}
+	fmt.Println()
+	fmt.Println()
+}
+
 func PartTwo(input string) string {
 	return ""
 
