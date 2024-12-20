@@ -67,9 +67,8 @@ func oneBugChance(stoneMap map[runeMap.Pos]bool, m, n int,
 
 			bugNeighbors := runeMap.NeighborsWithMNF(p, m, n, func(neighborI, neighborJ int) bool {
 				pos := runeMap.Pos{I: neighborI, J: neighborJ}
-				_, exist := stoneMap[pos]
 				_, stepped := stepsMap[pos]
-				return exist && !stepped
+				return !stepped
 			})
 			for _, bugPos := range bugNeighbors {
 				newStepsMap := make(map[runeMap.Pos]int, len(stepsMap)+1)
@@ -144,6 +143,60 @@ func printMap(maxI int, maxJ int, minStep map[runeMap.Pos]int, corrupted map[run
 }
 
 func PartTwo(input string) string {
+	SolvePartTwo("/home/konomi/codes/go/aoc2024/day20/input")
 	return ""
+}
+
+func twentyBugChance(stoneMap map[runeMap.Pos]bool, m, n int,
+	nowPoses []runeMap.Pos, s, e runeMap.Pos, cheatMap map[int][]runeMap.Pos) int {
+	stepsMap := make(map[runeMap.Pos]int)
+	stepsMap[nowPoses[0]] = 0
+	stepsNow := 1
+	for len(nowPoses) != 0 {
+		nextPoses := make([]runeMap.Pos, 0)
+		for _, p := range nowPoses {
+			neighbors := runeMap.NeighborsWithMNF(p, m, n, func(neighborI, neighborJ int) bool {
+				pos := runeMap.Pos{I: neighborI, J: neighborJ}
+				_, exist := stoneMap[pos]
+				_, stepped := stepsMap[pos]
+				return (!exist) && (!stepped)
+			})
+
+			for _, neighbor := range neighbors {
+				nextPoses = append(nextPoses, neighbor)
+				stepsMap[neighbor] = stepsNow
+				if neighbor == e {
+					return stepsNow
+				}
+			}
+			goForBug(stoneMap, m, n, p, stepsMap, stepsNow, s, e, cheatMap)
+		}
+		nowPoses = nextPoses
+		stepsNow++
+	}
+	return -1
+}
+
+func goForBug(stoneMap map[runeMap.Pos]bool, m int, n int, p runeMap.Pos, stepsMap map[runeMap.Pos]int, stepsNow int,
+	s runeMap.Pos, e runeMap.Pos, cheatMap map[int][]runeMap.Pos) {
+
+	nextNeighbors := make([]runeMap.Pos, 0)
+	for i := 0; i < 19; i++ {
+		possibleNeighbors := runeMap.NeighborsWithMNF(p, m, n, func(neighborI, neighborJ int) bool {
+			pos := runeMap.Pos{I: neighborI, J: neighborJ}
+			_, stepped := stepsMap[pos]
+			return !stepped
+		})
+
+		noNeedForCheat := make([]runeMap.Pos, 0)
+		for _, neighbor := range possibleNeighbors {
+			nextNeighbors = append(nextNeighbors, neighbor)
+			stepsMap[neighbor] = stepsNow
+			if neighbor == e {
+				noNeedForCheat = append(noNeedForCheat, neighbor)
+			}
+		}
+
+	}
 
 }
