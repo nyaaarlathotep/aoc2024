@@ -174,6 +174,24 @@ func getAllPossibleMove(avoid runeMap.Pos, now, end runeMap.Pos) [][]rune {
 }
 
 func PartTwo(input string) string {
-	return ""
+	total := 0
+	m := make(map[state]int)
+	for _, l := range strings.Split(input, "\n") {
+		numR := make([]rune, 0)
+		for _, r := range l {
+			if r >= '0' && r <= '9' {
+				numR = append(numR, r)
+			}
+		}
+		numLine, _ := strconv.Atoi(string(numR))
+		s := state{
+			s:     l,
+			depth: 0,
+			lim:   25,
+		}
+		length := minLen(s, m)
+		total = total + length*numLine
+	}
 
+	return strconv.Itoa(total)
 }
