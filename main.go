@@ -1,16 +1,16 @@
 package main
 
 import (
-	"aoc2024/day20"
+	"aoc2024/day21"
 	"fmt"
 	"os"
 )
 
 func main() {
-	content, err := os.ReadFile("./day20/input")
+	content, err := os.ReadFile("./day21/input")
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Printf("partOne res: %s \n", day20.PartOne(string(content)))
-	fmt.Printf("partTwo res: %s \n", day20.PartTwo(string(content)))
+	fmt.Printf("partOne res: %s \n", day21.PartOne(string(content)))
+	fmt.Printf("partTwo res: %s \n", day21.PartTwo(string(content)))
 }
