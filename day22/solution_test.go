@@ -23,3 +23,6 @@ func TestPartTwo(t *testing.T) {
 	}
 	fmt.Printf("partTwo res: %s \n", PartTwo(string(content)))
 }
+func TestPartTwo2(t *testing.T) {
+	fmt.Printf("partTwo res: %s \n", PartTwo("123"))
+}
