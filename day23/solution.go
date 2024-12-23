@@ -124,6 +124,9 @@ func innerMaxSet(m map[string]map[string]bool, exist map[string]bool, now string
 		if exist[neighbor] {
 			continue
 		}
+		if neighbor[0] < now[0] {
+			continue
+		}
 		connect := true
 		nNeighbors := m[neighbor]
 		for existNeighbor, v := range exist {
