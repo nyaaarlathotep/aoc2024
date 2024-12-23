@@ -82,6 +82,68 @@ func innerNSet(m map[string]map[string]bool, exist map[string]bool, now string, 
 }
 
 func PartTwo(input string) string {
-	return ""
+	m := make(map[string]map[string]bool)
+	for _, line := range strings.Split(input, "\n") {
+		parts := strings.Split(line, "-")
+		l, r := parts[0], parts[1]
+		if m[l] == nil {
+			m[l] = make(map[string]bool)
+		}
+		if m[r] == nil {
+			m[r] = make(map[string]bool)
+		}
+		m[l][r] = true
+		m[r][l] = true
+	}
+	longest := maxSet(m)
+	return strings.Join(longest, ",")
 
+}
+
+func maxSet(m map[string]map[string]bool) []string {
+	maxLenStr := make([]string, 0)
+	for k := range m {
+		if slices.Contains(maxLenStr, k) {
+			continue
+		}
+		exist := make(map[string]bool)
+		exist[k] = true
+		maxStr := innerMaxSet(m, exist, k)
+		maxStr = append(maxStr, k)
+		if len(maxStr) > len(maxLenStr) {
+			maxLenStr = maxStr
+		}
+	}
+	slices.Sort(maxLenStr)
+	return maxLenStr
+}
+func innerMaxSet(m map[string]map[string]bool, exist map[string]bool, now string) []string {
+	neighbors := m[now]
+	maxStr := make([]string, 0)
+	for neighbor := range neighbors {
+		if exist[neighbor] {
+			continue
+		}
+		connect := true
+		nNeighbors := m[neighbor]
+		for existNeighbor, v := range exist {
+			if !v {
+				continue
+			}
+			if !nNeighbors[existNeighbor] {
+				connect = false
+				break
+			}
+		}
+		if !connect {
+			continue
+		}
+		exist[neighbor] = true
+		remainRes := innerMaxSet(m, exist, neighbor)
+		exist[neighbor] = false
+		if len(remainRes)+1 > len(maxStr) {
+			maxStr = append(remainRes, neighbor)
+		}
+	}
+	return maxStr
 }
