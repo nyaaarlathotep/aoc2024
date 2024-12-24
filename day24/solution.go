@@ -132,7 +132,6 @@ func PartTwo(input string) string {
 		processes = append(processes, p)
 	}
 	testM := make(map[string]int)
-	resMap := make(map[string]int)
 	for i := 0; i <= 45; i++ {
 		var x, y, z string
 		if i/10 > 0 {
@@ -144,8 +143,30 @@ func PartTwo(input string) string {
 			x = "x0" + strconv.Itoa(i)
 			z = "z0" + strconv.Itoa(i)
 		}
+		testM[x] = 1
+		testM[y] = 1
+		fmt.Printf("\n%v -> ", i)
 
-		if v, ok := resMap[z]; ok {
+		for len(processes) != 0 {
+			newProcess := make([]process, 0)
+			for _, p := range processes {
+				va, existA := testM[p.a]
+				vb, existB := testM[p.b]
+				if !existA || !existB {
+					newProcess = append(newProcess, p)
+					continue
+				}
+				fmt.Printf("%v,%v -> %v ", p.a, p.b, p.r)
+				value := p.f(va, vb)
+				testM[p.r] = value
+			}
+			if len(processes) == len(newProcess) {
+				break
+			}
+			processes = newProcess
+		}
+
+		if v, ok := testM[z]; ok {
 			if v == 0 {
 				fmt.Println("!")
 			}
@@ -153,8 +174,17 @@ func PartTwo(input string) string {
 			fmt.Println("!")
 		}
 
+		// ((x and y) xor ) xor (x xor y)
+		// z12,jpj
+		// chv,vvw
+
 	}
 
-	return strconv.Itoa(0)
+	return swapAndJoinWires()
 
+}
+
+func getIndex(s string) int {
+	i, _ := strconv.Atoi(s[1:])
+	return i
 }
