@@ -1,6 +1,7 @@
 package day24
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -87,6 +88,73 @@ func PartOne(input string) string {
 }
 
 func PartTwo(input string) string {
-	return ""
+	parts := strings.Split(input, "\n\n")
+	m := make(map[string]int)
+	for _, line := range strings.Split(parts[0], "\n") {
+		lar := strings.Split(line, ": ")
+		l, r := lar[0], lar[1]
+		var rn int
+		if r == "1" {
+			rn = 1
+		} else {
+			rn = 0
+		}
+		m[l] = rn
+	}
+	lines := strings.Split(parts[1], "\n")
+	processes := make([]process, 0, len(lines))
+	for _, line := range lines {
+		lar := strings.Split(line, " -> ")
+		l, r := lar[0], lar[1]
+		lParts := strings.Split(l, " ")
+		var f func(int, int) int
+		if lParts[1] == "XOR" {
+			f = func(i1 int, i2 int) int {
+				return i1 ^ i2
+			}
+		} else if lParts[1] == "OR" {
+			f = func(i1 int, i2 int) int {
+				return i1 | i2
+			}
+		} else if lParts[1] == "AND" {
+			f = func(i1 int, i2 int) int {
+				return i1 & i2
+			}
+		} else {
+			panic("!")
+		}
+		p := process{
+			a: lParts[0],
+			b: lParts[2],
+			r: r,
+			f: f,
+		}
+		processes = append(processes, p)
+	}
+	testM := make(map[string]int)
+	resMap := make(map[string]int)
+	for i := 0; i <= 45; i++ {
+		var x, y, z string
+		if i/10 > 0 {
+			x = "x" + strconv.Itoa(i)
+			y = "y" + strconv.Itoa(i)
+			z = "z" + strconv.Itoa(i)
+		} else {
+			y = "y0" + strconv.Itoa(i)
+			x = "x0" + strconv.Itoa(i)
+			z = "z0" + strconv.Itoa(i)
+		}
+
+		if v, ok := resMap[z]; ok {
+			if v == 0 {
+				fmt.Println("!")
+			}
+		} else {
+			fmt.Println("!")
+		}
+
+	}
+
+	return strconv.Itoa(0)
 
 }
